@@ -874,3 +874,31 @@ bzl_library(
     srcs = ["pull_info_validation_test.bzl"],
     visibility = ["//visibility:private"],
 )
+
+container_image(
+    name = "test_install_pkgs",
+    base = "//tests/docker/package_managers:test_install_pkgs.tar",
+)
+
+container_image(
+    name = "test_install_git_for_reproducibility_1",
+    base = "//tests/docker/package_managers:install_git_for_reproducibility_1.tar",
+)
+
+# Test a container bundle with several images and install_pkgs.
+# This should not tax join_layers unnecessarily.
+# Run bazel build @io_bazel_rules_docker//tests/container:container_bundle_with_install_pkgs.tar to test.
+# Prior to adding a caching step to compat/reader.go, join_layers.go
+# would take substantially longer for this target.
+container_bundle(
+    name = "container_bundle_with_install_pkgs",
+    images = {
+        "localhost:5000/image0:latest": "//testdata:base_with_entrypoint",
+        "localhost:5000/image1:latest": "//testdata:link_with_files_base",
+        "localhost:5000/image2:latest": "//testdata:with_double_env",
+        "localhost:5000/image3:latest": "//testdata:with_label",
+        "localhost:5000/image4:latest": "//testdata:with_double_label",
+        "install_pkgs_1:latest": ":test_install_pkgs",
+        "install_pkgs_2:latest": ":test_install_git_for_reproducibility_1",
+    },
+)
