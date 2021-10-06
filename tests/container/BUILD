@@ -892,6 +892,7 @@ container_image(
 # would take substantially longer for this target.
 container_bundle(
     name = "container_bundle_with_install_pkgs",
+    experimental_tarball_format = "compressed",
     images = {
         "localhost:5000/image0:latest": "//testdata:base_with_entrypoint",
         "localhost:5000/image1:latest": "//testdata:link_with_files_base",
